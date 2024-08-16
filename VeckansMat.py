@@ -134,7 +134,7 @@ if __name__ == "__main__":
     filename = "credentials.txt"
     # Read email and password from the file
     sender_email, password = read_credentials(filename)
-    receiver_email = "vilmanils@gmail.com"
+    receiver_email = "<email>"
     subject = VeckansMat.replace(", ", "---")
     subject = subject.replace("[", " ")
     subject = subject.replace("]", " ")
