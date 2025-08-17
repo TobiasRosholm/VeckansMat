@@ -89,10 +89,6 @@ with open(r'VeckansMat.txt', 'r') as Ftxt:
         while ValSun[0] in content:
             ValSun = rnd.choice(list(Sun.items()))
 
-print(content)
-
-
-
 with open("VeckansMat.txt", "w") as f:
     f.write(str(ValMon[0]) + "\n")
     f.write(str(ValTue[0]) + "\n")
@@ -107,22 +103,29 @@ with open("VeckansMat.txt", "w") as f:
 VeckansMat = str([ValMon[0], ValTue[0], ValWed[0], ValThu[0], ValFri[0], ValSat[0], ValSun[0]])
 VeckansMatVaror = str([ValMon[1], ValTue[1], ValWed[1], ValThu[1], ValFri[1], ValSat[1], ValSun[1]])
 
-def send_email(sender_email: str, password: str, receiver_email: str, subject: str, body: str) -> None:
-    """Send an email using Gmail."""
+def send_email(sender_email: str, password: str, receiver_emails: list, subject: str, body: str) -> None:
+    """Send an email to multiple recipients using Gmail (TLS on port 587)."""
     message = MIMEMultipart()
     message["From"] = sender_email
-    message["To"] = receiver_email
+    message["To"] = ", ".join(receiver_emails)  # Synligt för alla
     message["Subject"] = subject
     message.attach(MIMEText(body, "plain"))
+
     try:
-        server = smtplib.SMTP_SSL("smtp.gmail.com", 465)
+        server = smtplib.SMTP("smtp.gmail.com", 587)
+        server.ehlo()
+        server.starttls()
         server.login(sender_email, password)
-        server.sendmail(sender_email, receiver_email, message.as_string())
-        print("Email sent successfully.")
-    except Exception as e:
-        print(f"Failed to send email. Error: {str(e)}")
-    finally:
+        server.sendmail(sender_email, receiver_emails, message.as_string())
+        print("✅ E-post skickad till alla mottagare!")
         server.quit()
+    except Exception as e:
+        print(f"❌ Kunde inte skicka e-post. Fel: {str(e)}")
+    finally:
+        try:
+            server.quit()
+        except:
+            pass
 def read_credentials(filename: str) -> tuple:
     """Read email and password from a text file."""
     with open(filename, "r") as file:
@@ -134,7 +137,7 @@ if __name__ == "__main__":
     filename = "credentials.txt"
     # Read email and password from the file
     sender_email, password = read_credentials(filename)
-    receiver_email = "<email>"
+    receiver_emails = ["@gmail.com", "@gmail.com"]
     subject = VeckansMat.replace(", ", "---")
     subject = subject.replace("[", " ")
     subject = subject.replace("]", " ")
@@ -144,7 +147,7 @@ if __name__ == "__main__":
     body = body.replace("[[", "")
     body = body.replace("]]", "")
     body = body.replace("'", "")    
-send_email(sender_email=sender_email, password=password, receiver_email=receiver_email, subject=subject, body=body)
+send_email(sender_email=sender_email, password=password, receiver_emails=receiver_emails, subject=subject, body=body)
 
 #print(subject)
 #print(body)
